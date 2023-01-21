@@ -1,0 +1,5 @@
+wheel
+setuptools
+black
+fastapi
+uvicorn[standard]
