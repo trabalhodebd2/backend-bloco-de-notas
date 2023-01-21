@@ -4,6 +4,8 @@ from models import AnnotationModel
 from database import database, generate_integer_id
 
 
+# TODO: Falta so adicionar o Mongo agora e fazer a função de Text Search (ler documentação da atividade)
+
 app = FastAPI()
 
 
