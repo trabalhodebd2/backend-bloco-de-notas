@@ -3,3 +3,4 @@ setuptools
 black
 fastapi
 uvicorn[standard]
+motor
