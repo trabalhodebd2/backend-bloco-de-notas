@@ -1,17 +1,31 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 
 from models import AnnotationModel
-from database import database, generate_integer_id
+from database import generate_integer_id, fetch_all, fetch_one, create, update, delete
 
-
-# TODO: Falta so adicionar o Mongo agora e fazer a função de Text Search (ler documentação da atividade)
 
 app = FastAPI()
+
+origins = [
+    "http://localhost:3000",
+    "http://localhost:8000",
+    "http://localhost:5000",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.get("/annotations", tags=["Annotation Endpoints"])
 def list_annotations():
-    return database
+    response = fetch_all()
+    return response
 
 
 @app.get("/annotations/{annotation_id}", tags=["Annotation Endpoints"])
