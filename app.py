@@ -1,8 +1,9 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, status
 from fastapi.middleware.cors import CORSMiddleware
 
-from models import AnnotationModel
-from database import generate_integer_id, fetch_all, fetch_one, create, update, delete
+from models import AnnotationModel, AnnotationPatchModel
+
+from database import fetch_all, fetch_one, create, update, delete
 
 
 app = FastAPI()
@@ -30,65 +31,21 @@ def list_annotations():
 
 @app.get("/annotations/{annotation_id}", tags=["Annotation Endpoints"])
 def retrieve_annotation(annotation_id: int):
-
-    annotation = None
-
-    for record in database:
-        if record["id"] == annotation_id:
-            annotation = record
-            break
-
-    if annotation is None:
-        return {"message": "annotation not found"}
-
-    return annotation
+    return fetch_one(annotation_id)
 
 
-@app.post("/annotations", tags=["Annotation Endpoints"])
-def create_annotation(annotation_fields: AnnotationModel):
-
-    new_annotation = {
-        "id": generate_integer_id(),
-        "title": annotation_fields.title,
-        "content": annotation_fields.content,
-    }
-    database.append(new_annotation)
-    return new_annotation
+@app.post(
+    "/annotations", tags=["Annotation Endpoints"], status_code=status.HTTP_201_CREATED
+)
+def create_annotation(annotation: AnnotationModel):
+    return create(annotation)
 
 
-@app.put("/annotations/{annotation_id}", tags=["Annotation Endpoints"])
-def update_annotation(annotation_id: int, annotation_fields: AnnotationModel):
-
-    # TODO: Fazer com que nao seja obrigatorio informar os 2 campos pra editar
-
-    updated_annotation = None
-
-    for record in database:
-        if record["id"] == annotation_id:
-            updated_annotation = record
-            break
-
-    if updated_annotation is None:
-        return {"message": "annotation not found"}
-
-    updated_annotation["title"] = annotation_fields.title
-    updated_annotation["content"] = annotation_fields.content
-
-    return updated_annotation
+@app.patch("/annotations/{annotation_id}", tags=["Annotation Endpoints"])
+def update_annotation(annotation_id: int, annotation_fields: AnnotationPatchModel):
+    return update(annotation_id, annotation_fields)
 
 
 @app.delete("/annotations/{annotation_id}", tags=["Annotation Endpoints"])
 def delete_annotation(annotation_id: int):
-
-    annotation = None
-
-    for record in database:
-        if record["id"] == annotation_id:
-            annotation = record
-            break
-
-    if annotation is None:
-        return {"message": "annotation not found"}
-
-    database.remove(annotation)
-    return {"message": "annotation successfuly deleted"}
+    return delete(annotation_id)
