@@ -3,7 +3,7 @@
 # https://www.mongodb.com/docs/drivers/pymongo/
 # https://pymongo.readthedocs.io/en/stable/tutorial.html
 
-from pymongo import MongoClient
+from pymongo import MongoClient, TEXT
 from models import AnnotationModel, AnnotationPatchModel
 from fastapi import HTTPException, status
 
@@ -11,6 +11,17 @@ client = MongoClient()
 
 database = client["annotation_app"]
 collection = database["annotations"]  # SEE OBS1
+
+collection.create_index(
+    [
+        ("title", TEXT),
+        ("content", TEXT),
+    ],
+    weights={
+        "title": 5,
+        "content": 1,
+    },
+)
 
 
 last_id_used = 0
@@ -22,8 +33,13 @@ def generate_integer_id():
     return last_id_used - 1
 
 
-def fetch_all():
-    return list(collection.find())
+def fetch_all(query=None):
+    result = collection.find()
+    if query:
+        result = collection.find(
+            {"$text": {"search": query}}, {"score": {"$meta": "textScore"}}
+        ).sort({"score": {"$meta": "textScore"}})
+    return list(result)
 
 
 def fetch_one(annotation_id: int):
