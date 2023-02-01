@@ -9,7 +9,7 @@ from fastapi import HTTPException, status
 
 client = MongoClient()
 
-database = client["annotation_app"]
+database = client["annotation_app_python"]
 collection = database["annotations"]  # SEE OBS1
 
 collection.create_index(
@@ -36,9 +36,10 @@ def generate_integer_id():
 def fetch_all(query=None):
     result = collection.find()
     if query:
-        result = collection.find(
-            {"$text": {"search": query}}, {"score": {"$meta": "textScore"}}
-        ).sort({"score": {"$meta": "textScore"}})
+        result = collection.find(    
+            {'$text': {'$search': query}},     
+            {'score': {'$meta': 'textScore'}}
+        ).sort([('score', {'$meta': 'textScore'})])
     return list(result)
 
 
