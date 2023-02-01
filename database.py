@@ -43,7 +43,6 @@ def create(annotation: AnnotationModel):
 
 
 def update(annotation_id: int, annotation: AnnotationPatchModel):
-    # del annotation["_id"]  # pra evitar de conseguir editar o id (mas vi que nao precisa)
     result = collection.find_one_and_update(
         {"_id": annotation_id}, {"$set": {**annotation.dict(exclude_unset=True)}}
     )
