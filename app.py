@@ -1,8 +1,9 @@
 from fastapi import FastAPI, status
 from fastapi.middleware.cors import CORSMiddleware
 
-from models import AnnotationModel, AnnotationPatchModel
+from typing import Optional
 
+from models import AnnotationModel, AnnotationPatchModel
 from database import fetch_all, fetch_one, create, update, delete
 
 
@@ -24,8 +25,8 @@ app.add_middleware(
 
 
 @app.get("/annotations", tags=["Annotation Endpoints"])
-def list_annotations():
-    response = fetch_all()
+def list_annotations(query: Optional[str] = None):
+    response = fetch_all(query)
     return response
 
 
