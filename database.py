@@ -7,6 +7,8 @@ from pymongo import MongoClient, TEXT
 from models import AnnotationModel, AnnotationPatchModel
 from fastapi import HTTPException, status
 
+from pymongo.errors import DuplicateKeyError
+
 client = MongoClient()
 
 database = client["annotation_app_python"]
@@ -50,9 +52,17 @@ def fetch_one(annotation_id: int):
 
 
 def create(annotation: AnnotationModel):
-    new_annotation_id = collection.insert_one(
-        {"_id": generate_integer_id(), **annotation.dict()}
-    ).inserted_id
+    new_id = generate_integer_id()
+    while True:
+        try:
+            new_annotation_id = collection.insert_one(
+                {"_id": new_id, **annotation.dict()}
+            ).inserted_id
+        except DuplicateKeyError:
+            new_id += 1
+        else:
+            break
+
     result = collection.find_one({"_id": new_annotation_id})
     print(result)
     return result
