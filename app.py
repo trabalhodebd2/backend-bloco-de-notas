@@ -6,6 +6,8 @@ from typing import Optional
 from models import AnnotationModel, AnnotationPatchModel
 from database import fetch_all, fetch_one, create, update, delete
 
+from bson import ObjectId
+
 
 app = FastAPI()
 
@@ -32,7 +34,7 @@ def list_annotations(query: Optional[str] = None):
 
 
 @app.get("/annotations/{annotation_id}", tags=["Annotation Endpoints"])
-def retrieve_annotation(annotation_id: int):
+def retrieve_annotation(annotation_id: ObjectId):
     return fetch_one(annotation_id)
 
 
@@ -44,10 +46,10 @@ def create_annotation(annotation: AnnotationModel):
 
 
 @app.patch("/annotations/{annotation_id}", tags=["Annotation Endpoints"])
-def update_annotation(annotation_id: int, annotation_fields: AnnotationPatchModel):
+def update_annotation(annotation_id: ObjectId, annotation_fields: AnnotationPatchModel):
     return update(annotation_id, annotation_fields)
 
 
 @app.delete("/annotations/{annotation_id}", tags=["Annotation Endpoints"])
-def delete_annotation(annotation_id: int):
+def delete_annotation(annotation_id: ObjectId):
     return delete(annotation_id)
